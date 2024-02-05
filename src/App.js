@@ -2,21 +2,25 @@ import React from "react";
 
 class App extends React.Component {
     state = {
-        colorOptions: ["black", "green", "red", "blue"],
+        colorOptions: ["","black", "green", "red", "blue"],
         rows: "",// שורה
         cols: "",// עמודה
         currentPlayer: "",//תור איזה שחקן
         player1Color:"",// צבע שחקן 1
         player2Color:"", // צבע שחקן 2
         board: [],// לוח משחק
+        count:"",
     };
+    changeCurrentPlayer = (event) => {
+        this.setState({ currentPlayer: this.state.currentPlayer === 1 ? 2 : 1 });
+    }
 
 
 // יצירת לוח משחק
     createBoard = () => {
-        const { rows, cols } = this.state;
+        const { rows, cols, currentPlayer } = this.state;
         const board = Array(rows).fill().map(() => Array(cols).fill({ color: 'white', selected: false }));
-        this.setState({ board });
+        this.setState({ board, currentPlayer: currentPlayer === 1 ? 2 : 1 });
     };
 
 
@@ -55,18 +59,11 @@ class App extends React.Component {
             alert("Player 1 and Player 2 must choose different colors.");
         }
     };
-
-
-
-    getCurrentPlayerColor = () => {
-        return this.state.currentPlayer === 1 ? this.state.player1Color : this.state.player2Color;
-    };
-
     render = () => {
         const { board, rows, colorOptions, player1Color,player2Color } = this.state;
         return (
-            <div>
-                <h1 style={{ color: "red" }}>4 in a row game!</h1>
+            <h1>
+                <h1 style={{color: "red"}}>4 in a row game!</h1>
                 <div> Current Player: {this.state.currentPlayer} </div>
                 <div>
                     Player 1 Color:
@@ -81,7 +78,7 @@ class App extends React.Component {
                 <div>
                     player 2 color:
                     <select value={player2Color} onChange={this.player2Color}>
-                        {colorOptions.map((color)=>(
+                        {colorOptions.map((color) => (
                             <option>
                                 {color}
                             </option>
@@ -91,18 +88,21 @@ class App extends React.Component {
                 </div>
 
                 <div>bord size : <input type="number" min="5" max="10" value={rows} onChange={this.changeSize}/>
-                    <button onClick={this.enterClick}>enter</button>
+                    <button onClick={this.enterClick } disabled={board.length>0}>enter</button>
                 </div>
-                <div>{board.map((row, rowIndex) => (
+                <div>{board.map((row) => (
                     <div>
-                        {row.map((cell, colIndex) => (
-                            <button></button>
-                        ))}
+                        {row.map(() => (
+                            <button style={{width: '100px', height: '50px'}} onClick={this.changeCurrentPlayer}></button>))}
                     </div>
                 ))}
                 </div>
-            </div>
+                <div>
+                    time to your turn:
+                </div>
+            </h1>
         );
     };
 }
+
 export default App;
