@@ -5,7 +5,7 @@ class App extends React.Component {
         colorOptions: ["","black", "green", "red", "blue"],
         rows: "",// שורה
         cols: "",// עמודה
-        currentPlayer: "",//תור איזה שחקן
+        currentPlayer: "",//תור איזה שחקןכנכנכ
         player1Color:"",// צבע שחקן 1
         player2Color:"", // צבע שחקן 2
         board: [],// לוח משחק
