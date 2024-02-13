@@ -4,7 +4,7 @@ import Board from "./Board";
 
 class Game extends React.Component {
     state = {
-        colorOptions: ["", "black", "green", "red", "blue"],
+        colorOptions: ["", "black", "green", "red", "blue","yellow"],
         rows: "",
         cols: "",
         currentPlayer: 1,
@@ -12,11 +12,16 @@ class Game extends React.Component {
         player2Color: "",
         board: [],
         timer: 10,
+        gameOver: false,
     };
     timerInterval;
 
     updateTurn = () => {
-        const { currentPlayer, timer } = this.state;
+        const { currentPlayer, timer, gameOver } = this.state;
+        if (gameOver) {
+            return; // אם המשחק נגמר, לא לעשות כלום
+        }
+
         const newCurrentPlayer = currentPlayer === 1 ? 2 : 1;
         this.setState({ currentPlayer: newCurrentPlayer, timer: 10 });
         clearInterval(this.timerInterval);
@@ -25,8 +30,8 @@ class Game extends React.Component {
 
     startTimer = () => {
         this.timerInterval = setInterval(() => {
-            const { timer } = this.state;
-            if (timer > 0) {
+            const { timer, gameOver } = this.state;
+            if (timer > 0 && !gameOver) {
                 this.setState({ timer: timer - 1 });
             } else {
                 clearInterval(this.timerInterval);
@@ -36,11 +41,16 @@ class Game extends React.Component {
     };
 
     changeCurrentPlayer = (col) => {
-        const { currentPlayer, player1Color, player2Color, board, rows } = this.state;
+        const { currentPlayer, player1Color, player2Color, board, rows, gameOver } = this.state;
+        if (gameOver) {
+            return;
+        }
+
         const newCurrentPlayer = currentPlayer === 1 ? 2 : 1;
         const updatedBoard = [...board];
         const playerColor = currentPlayer === 1 ? player1Color : player2Color;
         let boardFull = true;
+
         for (let i = rows - 1; i >= 0; i--) {
             if (updatedBoard[i][col].color === 'white') {
                 updatedBoard[i][col] = { color: playerColor, selected: true };
@@ -49,6 +59,7 @@ class Game extends React.Component {
                 break;
             }
         }
+
         if (!boardFull) {
             this.setState({ board: updatedBoard, currentPlayer: newCurrentPlayer, timer: 10 });
             clearInterval(this.timerInterval);
@@ -59,18 +70,19 @@ class Game extends React.Component {
     };
 
     checkForVictory = (row, col) => {
-        const { board, currentPlayer, player1Color, player2Color, timer } = this.state;
+        const { currentPlayer, player1Color, player2Color } = this.state;
         const playerColor = currentPlayer === 1 ? player1Color : player2Color;
+
         if (
             this.checkRow(row, playerColor) ||
             this.checkColumn(col, playerColor) ||
             this.checkDiagonal(row, col, playerColor)
         ) {
-            alert('Player ' + JSON.stringify(currentPlayer) + ' wins!');
-            this.resetGame();
+            alert('Player ' + currentPlayer + ' wins!');
+            this.setState({ gameOver: true });
+            clearInterval(this.timerInterval);
         }
     };
-
 
     checkRow = (row, playerColor) => {
         const { board } = this.state;
@@ -134,17 +146,19 @@ class Game extends React.Component {
         return count >= 4;
     };
 
-    resetGame = () => {
-        this.setState({
-            rows: "",
-            cols: "",
-            currentPlayer: "",
-            player1Color: "",
-            player2Color: "",
-            board: [],
-            timer: "",
-        });
-    };
+    // resetGame = () => {
+    //     clearInterval(this.timerInterval);
+    //     this.setState({
+    //         rows: "",
+    //         cols: "",
+    //         currentPlayer: "",
+    //         player1Color: "",
+    //         player2Color: "",
+    //         board: [],
+    //         timer: "",
+    //         gameOver: false,
+    //     });
+    // };
 
     createBoard = () => {
         const { rows, cols } = this.state;
@@ -179,7 +193,7 @@ class Game extends React.Component {
 
     render = () => {
         const backgroundURL = 'url("https://stuntsoftware.com/img/4inarow/title.png")';
-        const { board, rows, colorOptions, player1Color, player2Color, timer } = this.state;
+        const { board, rows, colorOptions, player1Color, player2Color, timer, gameOver } = this.state;
         return (
             <h1 style={{backgroundImage: backgroundURL, backgroundRepeat: 'no-repeat', backgroundPosition: '30% -5px'}}>
                 <h2 style={{color: "darkgreen"}}>4 in a row game !</h2>
@@ -210,8 +224,7 @@ class Game extends React.Component {
                 </div>
                 <div>Current player : {this.state.currentPlayer} </div>
                 <div>Time left : {timer} seconds</div>
-                <div>
-                </div>
+                {gameOver && <div>Game Over!</div>}
             </h1>
         );
     };
